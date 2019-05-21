@@ -2,7 +2,6 @@ package com.mopub.mobileads.dfp.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -25,7 +24,6 @@ import com.mopub.common.SdkInitializationListener;
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubView;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -33,8 +31,7 @@ import static com.google.android.gms.ads.AdRequest.GENDER_FEMALE;
 import static com.google.android.gms.ads.AdRequest.GENDER_MALE;
 
 /**
- * A {@link com.mopub.mobileads.dfp.adapters.MoPubAdapter} used to mediate banner ads,
- * interstitial ads and native ads from MoPub.
+ * A {@link com.mopub.mobileads.dfp.adapters.MoPubAdapter} used to mediate banner ads from MoPub.
  */
 public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdapter,
         MediationInterstitialAdapter {
@@ -43,15 +40,8 @@ public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdap
     private MoPubView mMoPubView;
     private AdSize mAdSize;
 
-    public static final String MOPUB_NATIVE_CEVENT_VERSION = "gmext";
-    public static final double DEFAULT_MOPUB_IMAGE_SCALE = 1;
+    private static final String MOPUB_NATIVE_CEVENT_VERSION = "gmext";
     private static final String MOPUB_AD_UNIT_KEY = "adUnitId";
-    private int privacyIconPlacement;
-    private int mPrivacyIconSize;
-
-    private static final int MINIMUM_MOPUB_PRIVACY_ICON_SIZE_DP = 10;
-    private static final int DEFAULT_MOPUB_PRIVACY_ICON_SIZE_DP = 20;
-    private static final int MAXIMUM_MOPUB_PRIVACY_ICON_SIZE_DP = 30;
 
     @Override
     public void onDestroy() {
@@ -123,75 +113,8 @@ public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdap
     }
 
     private AdSize getSupportedAdSize(Context context, AdSize adSize) {
-        AdSize original = new AdSize(adSize.getWidth(),
-                adSize.getHeight());
-
-        ArrayList<AdSize> potentials = new ArrayList<>(2);
-        potentials.add(AdSize.BANNER);
-        potentials.add(AdSize.MEDIUM_RECTANGLE);
-        potentials.add(AdSize.LEADERBOARD);
-        potentials.add(AdSize.WIDE_SKYSCRAPER);
-        Log.i(TAG, potentials.toString());
-        return findClosestSize(context, original, potentials);
+        return AdSize.BANNER;
     }
-
-    // Start of helper code to remove when available in SDK
-    /**
-     * Find the closest supported AdSize from the list of potentials to the provided size.
-     * Returns null if none are within given threshold size range.
-     */
-    public static AdSize findClosestSize(
-            Context context, AdSize original, ArrayList<AdSize> potentials) {
-        if (potentials == null || original == null) {
-            return null;
-        }
-        float density = context.getResources().getDisplayMetrics().density;
-        int actualWidth = Math.round(original.getWidthInPixels(context)/density);
-        int actualHeight = Math.round(original.getHeightInPixels(context)/density);
-        original = new AdSize(actualWidth, actualHeight);
-        AdSize largestPotential = null;
-        for (AdSize potential : potentials) {
-            if (isSizeInRange(original, potential)) {
-                if (largestPotential == null) {
-                    largestPotential = potential;
-                } else {
-                    largestPotential = getLargerByArea(largestPotential, potential);
-                }
-            }
-        }
-        return largestPotential;
-    }
-
-    private static boolean isSizeInRange(AdSize original, AdSize potential) {
-        if (potential == null) {
-            return false;
-        }
-        double minWidthRatio = 0.5;
-        double minHeightRatio = 0.7;
-
-        int originalWidth = original.getWidth();
-        int potentialWidth = potential.getWidth();
-        int originalHeight = original.getHeight();
-        int potentialHeight = potential.getHeight();
-
-        if (originalWidth * minWidthRatio > potentialWidth ||
-                originalWidth < potentialWidth) {
-            return false;
-        }
-
-        if (originalHeight * minHeightRatio > potentialHeight ||
-                originalHeight < potentialHeight) {
-            return false;
-        }
-        return true;
-    }
-
-    private static AdSize getLargerByArea(AdSize size1, AdSize size2) {
-        int area1 = size1.getWidth() * size1.getHeight();
-        int area2 = size2.getWidth() * size2.getHeight();
-        return area1 > area2 ? size1 : size2;
-    }
-    // End code to remove when available in SDK
 
     @Override
     public View getBannerView() {
@@ -201,7 +124,7 @@ public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdap
     /* Keywords passed from AdMob are separated into 1) personally identifiable, and 2) non-personally
     identifiable categories before they are forwarded to MoPub due to GDPR.
      */
-    public static String getKeywords(MediationAdRequest mediationAdRequest, boolean intendedForPII) {
+    private static String getKeywords(MediationAdRequest mediationAdRequest, boolean intendedForPII) {
 
         Date birthday = mediationAdRequest.getBirthday();
         String ageString = "";
@@ -255,7 +178,7 @@ public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdap
     private class MBannerListener implements MoPubView.BannerAdListener {
         private MediationBannerListener mMediationBannerListener;
 
-        public MBannerListener(MediationBannerListener bannerListener) {
+        MBannerListener(MediationBannerListener bannerListener) {
             mMediationBannerListener = bannerListener;
         }
 
@@ -327,41 +250,5 @@ public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdap
     @Override
     public void showInterstitial() {
         // Stub
-    }
-
-    /**
-     * The {@link BundleBuilder} class is used to create a NetworkExtras bundle which can be passed
-     * to the adapter to make network-specific customizations.
-     */
-    public static final class BundleBuilder {
-
-        /**
-         * Key to add and obtain {@link #mPrivacyIconSizeDp}.
-         */
-        private static final String ARG_PRIVACY_ICON_SIZE_DP = "privacy_icon_size_dp";
-
-        /**
-         * MoPub's privacy icon size in dp.
-         */
-        private int mPrivacyIconSizeDp;
-
-        /**
-         * Sets the privacy icon size in dp.
-         */
-        public BundleBuilder setPrivacyIconSize(int iconSizeDp) {
-            mPrivacyIconSizeDp = iconSizeDp;
-            return BundleBuilder.this;
-        }
-
-        /**
-         * Constructs a Bundle with the specified extras.
-         *
-         * @return a {@link Bundle} containing the specified extras.
-         */
-        public Bundle build() {
-            Bundle bundle = new Bundle();
-            bundle.putInt(ARG_PRIVACY_ICON_SIZE_DP, mPrivacyIconSizeDp);
-            return bundle;
-        }
     }
 }

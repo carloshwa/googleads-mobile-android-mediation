@@ -2,12 +2,10 @@ package com.google.ads.mediation.mopub;
 
 import android.app.Activity;
 
-import com.google.android.gms.ads.mediation.MediationAdConfiguration;
 import com.mopub.common.MoPub;
 import com.mopub.common.SdkConfiguration;
 import com.mopub.common.SdkInitializationListener;
 import com.mopub.common.logging.MoPubLog;
-import com.mopub.mobileads.dfp.adapters.MoPubAdapter;
 
 import java.util.ArrayList;
 
@@ -49,24 +47,5 @@ public class MoPubSingleton {
                 }
             });
         }
-    }
-
-    static String getKeywords(MediationAdConfiguration mediationConfiguration,
-                              boolean intendedForPII) {
-        if (intendedForPII) {
-            if (MoPub.canCollectPersonalInformation()) {
-                return containsPII(mediationConfiguration) ?
-                        MoPubAdapter.MOPUB_NATIVE_CEVENT_VERSION : "";
-            } else {
-                return "";
-            }
-        } else {
-            return containsPII(mediationConfiguration) ? "" :
-                    MoPubAdapter.MOPUB_NATIVE_CEVENT_VERSION;
-        }
-    }
-
-    static boolean containsPII(MediationAdConfiguration configuration) {
-        return configuration.getLocation() != null;
     }
 }
