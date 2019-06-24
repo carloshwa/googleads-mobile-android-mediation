@@ -27,6 +27,7 @@ public class MoPubSingleton {
                                    SdkConfiguration configuration,
                                    SdkInitializationListener listener) {
         if (MoPub.isSdkInitialized()) {
+            MoPubRewardedVideos.setRewardedVideoListener(MoPubSingleton.this);
             listener.onInitializationFinished();
             return;
         }
@@ -44,6 +45,7 @@ public class MoPubSingleton {
                         initListener.onInitializationFinished();
                     }
                     mInitListeners.clear();
+                    isInitializing = false;
                 }
             });
         }
