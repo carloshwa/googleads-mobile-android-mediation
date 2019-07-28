@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.android.gms:play-services-ads:18.1.1'
+    implementation 'com.google.android.gms:play-services-ads-lite:18.1.1'
     implementation('com.mopub:mopub-sdk-banner:5.7.1@aar') {
         transitive = true
     }
