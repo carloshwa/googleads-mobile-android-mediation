@@ -1,6 +1,6 @@
 package com.google.ads.mediation.mopub;
 
-import android.app.Activity;
+import android.content.Context;
 
 import com.mopub.common.MoPub;
 import com.mopub.common.SdkConfiguration;
@@ -23,7 +23,7 @@ public class MoPubSingleton {
         return instance;
     }
 
-    public void initializeMoPubSDK(Activity activity,
+    public void initializeMoPubSDK(Context context,
                                    SdkConfiguration configuration,
                                    SdkInitializationListener listener) {
         if (MoPub.isSdkInitialized()) {
@@ -35,7 +35,7 @@ public class MoPubSingleton {
         if (!isInitializing) {
             isInitializing = true;
 
-            MoPub.initializeSdk(activity, configuration, new SdkInitializationListener() {
+            MoPub.initializeSdk(context, configuration, new SdkInitializationListener() {
                 @Override
                 public void onInitializationFinished() {
                     MoPubLog.d("MoPub SDK initialized.");

@@ -1,8 +1,8 @@
 package com.mopub.mobileads.dfp.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
@@ -76,7 +76,13 @@ public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdap
                                 MediationAdRequest mediationAdRequest,
                                 Bundle bundle1) {
 
-        String adunit = bundle.getString(MOPUB_AD_UNIT_KEY);
+        String adUnit = bundle.getString(MOPUB_AD_UNIT_KEY);
+        if (TextUtils.isEmpty(adUnit)) {
+            Log.d(TAG, "Missing or Invalid MoPub Ad Unit ID.");
+            mediationBannerListener.onAdFailedToLoad(MoPubAdapter.this,
+                    AdRequest.ERROR_CODE_INVALID_REQUEST);
+            return;
+        }
 
         mAdSize = getSupportedAdSize(context, adSize);
         if (mAdSize == null) {
@@ -87,7 +93,7 @@ public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdap
 
         mMoPubView = new MoPubView(context);
         mMoPubView.setBannerAdListener(new MBannerListener(mediationBannerListener));
-        mMoPubView.setAdUnitId(adunit);
+        mMoPubView.setAdUnitId(adUnit);
 
         //If test mode is enabled
         if (mediationAdRequest.isTesting()) {
@@ -102,8 +108,8 @@ public class MoPubAdapter implements MediationNativeAdapter, MediationBannerAdap
         mMoPubView.setKeywords(getKeywords(mediationAdRequest, false));
         mMoPubView.setUserDataKeywords(getKeywords(mediationAdRequest, true));
 
-        SdkConfiguration sdkConfiguration = new SdkConfiguration.Builder(adunit).build();
-        MoPubSingleton.getInstance().initializeMoPubSDK((Activity) context, sdkConfiguration,
+        SdkConfiguration sdkConfiguration = new SdkConfiguration.Builder(adUnit).build();
+        MoPubSingleton.getInstance().initializeMoPubSDK(context, sdkConfiguration,
                 new SdkInitializationListener() {
             @Override
             public void onInitializationFinished() {
